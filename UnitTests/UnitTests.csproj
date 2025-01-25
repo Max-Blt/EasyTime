@@ -28,7 +28,6 @@
 	  <ProjectReference Include="..\EasyTime\EasyTime.csproj" />
 	</ItemGroup>
 
-
 	<ItemGroup>
 		<Using Include="Xunit" />
 	</ItemGroup>
