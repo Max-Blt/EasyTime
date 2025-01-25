@@ -79,7 +79,6 @@ namespace UnitTests
         }
 
         [Theory]
-        // dans le même mois
         [InlineData("01/01/2020", "31/12/2020", 366)] // une année bisextile
         [InlineData("01/01/1999", "31/12/1999", 365)] // une année non bisextile
 
