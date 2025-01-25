@@ -81,20 +81,12 @@ namespace UnitTests
         [Theory]
         [InlineData("01/01/2020", "31/12/2020", 366)] // une année bisextile
         [InlineData("01/01/1999", "31/12/1999", 365)] // une année non bisextile
-
         [InlineData("01/01/2020", "12/12/2020", 347)] // dans une année bisextile
         [InlineData("01/01/1999", "12/12/1999", 346)] // dans une année non bisextile
-
         [InlineData("01/01/2010", "31/12/2030", 7670)] // deux années différentes
-
         [InlineData("01/08/2020", "31/08/2020", 31)] // un mois d'août
         [InlineData("01/09/2020", "30/09/2020", 30)] // un mois de septembre
-
         [InlineData("01/09/2020", "01/10/2020", 31)] // septembre à octobre
-
-
-        //--
-
         [InlineData("01/01/2020", "02/01/2020", 2)] // un jour
         [InlineData("01/01/2020", "01/01/2020", 1)] // 0 jour
         public void LengthInDays_ShouldReturnCorrectNumberOfDays(string startDate, string endDate, int expectedValue)
