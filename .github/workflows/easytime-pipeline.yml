@@ -26,7 +26,7 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Run tests
-      run:  dotnet test /app/tests/EasyTime.Tests/EasyTime.Tests.csproj --verbosity normal
+      run:  dotnet test --verbosity normal
 
   # Job for publishing to NuGet
   publish:
