@@ -1,0 +1,55 @@
+﻿name: EasyTime CI/CD Pipeline
+
+on:
+  pull_request:
+    branches:
+      - dev
+  push:
+    branches:
+      - feature/*
+    tags:
+        - 'v[0-9]+\.[0-9]+\.[0-9]+' # regex en espérant que github actions accepte cette regex
+  workflow_dispatch:
+
+jobs:
+  # Job for testing the project
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Run tests
+      run:  dotnet test /app/tests/EasyTime.Tests/EasyTime.Tests.csproj --verbosity normal
+
+  # Job for publishing to NuGet
+  publish:
+    runs-on: ubuntu-latest
+    needs: test                    # Only run if test job is successful
+    if: startsWith(github.event.ref, 'refs/tags/v')
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Extract tag version
+      id: extract_version
+      run: echo "##[set-output name=VERSION;]${GITHUB_REF/refs\/tags\/v/}"
+
+    - name: Pack NuGet package
+      run: dotnet pack /app/src/EasyTime/EasyTime.csproj -c Release -o /app/output /p:PackageVersion=${{ steps.extract_version.outputs.VERSION }}
+    
+    - name: Publish to NuGet
+      run: dotnet nuget push /app/output/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+
