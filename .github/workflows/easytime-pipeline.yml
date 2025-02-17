@@ -48,8 +48,9 @@ jobs:
       run: echo "##[set-output name=VERSION;]${GITHUB_REF/refs\/tags\/v/}"
 
     - name: Pack NuGet package
-      run: dotnet pack ./src/EasyTime/EasyTime.csproj -c Release -o ./output /p:PackageVersion=${{ env.VERSION }}
+      run: dotnet pack -c Release -o ./output /p:PackageVersion=${{ env.VERSION }}
 
     - name: Publish to NuGet
       run: dotnet nuget push ./output/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+
 
