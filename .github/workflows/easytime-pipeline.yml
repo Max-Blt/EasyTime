@@ -45,9 +45,11 @@ jobs:
 
     - name: Extract tag version
       id: extract_version
-      run: echo "##[set-output name=VERSION;]${GITHUB_REF/refs\/tags\/v/}"
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
     - name: Pack NuGet package
+      env:
+          VERSION: ${{ steps.extract_version.outputs.VERSION }}
       run: dotnet pack -c Release -o ./output /p:PackageVersion=${{ env.VERSION }}
 
     - name: Publish to NuGet
