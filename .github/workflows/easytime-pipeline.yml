@@ -46,6 +46,15 @@ jobs:
     - name: Install GitVersion
       run: dotnet tool install --global GitVersion.Tool --version 6.1.0
 
+    - name: Determine version
+      id: determine_version
+      run: |
+          git fetch --tags
+          echo "VERSION=$(gitversion /output json | jq -r .NuGetVersion)" >> $GITHUB_ENV
+
+    - name: Print version
+      run: echo $VERSION
+
     - name: Extract tag version
       id: extract_version
       run: echo "VERSION=$(dotnet gitversion --output json | jq -r .NuGetVersion)" >> $GITHUB_ENV
