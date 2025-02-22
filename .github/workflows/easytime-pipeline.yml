@@ -46,21 +46,15 @@ jobs:
     - name: Install GitVersion
       run: dotnet tool install --global GitVersion.Tool --version 6.1.0
 
-    - name: Determine version
-      id: determine_version
+    - name: Set env
+      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+    - name: Test
       run: |
-          git fetch --tags
-          echo "VERSION=$(gitversion /output json | jq -r .NuGetVersion)" >> $GITHUB_ENV
-
-    - name: Print version
-      run: echo $VERSION
-
-    - name: Extract tag version
-      id: extract_version
-      run: echo "VERSION=$(dotnet gitversion --output json | jq -r .NuGetVersion)" >> $GITHUB_ENV
+        echo $RELEASE_VERSION
+        echo ${{ env.RELEASE_VERSION }}
 
     - name: Pack NuGet package
-      run: dotnet pack -c Release -o ./output /p:PackageVersion=${{ env.VERSION }}
+      run: dotnet pack -c Release -o ./output /p:PackageVersion=${{ env.RELEASE_VERSION }}
 
     - name: Publish to NuGet
       run: dotnet nuget push ./output/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
