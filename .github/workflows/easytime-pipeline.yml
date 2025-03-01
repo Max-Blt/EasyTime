@@ -54,18 +54,14 @@ jobs:
         uses: gittools/actions/gitversion/execute@v3.1.11
 
       - name: Create tag 
-        env:
-          GITVERSION_FULLSEMVER: ${{ steps.gitversion.outputs.GitVersion_FullSemVer }}
         run: |
-          TAG_NAME="v${GITVERSION_FULLSEMVER}"
-          git tag "$TAG_NAME"
-          git push origin "$TAG_NAME"
+                git tag -a v${{ env.semVer }}
 
   # Job for publishing to NuGet
   publish:
     runs-on: ubuntu-latest
     needs: test                    # Only run if test job is successful
-    if: startsWith(github.event.ref, 'refs/tags/v') # Only runs if tag created ??
+    if: startsWith(github.event.ref, 'refs/tags/v') # Only runs if tag was pushed
 
     steps:
     - name: Checkout code
