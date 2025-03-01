@@ -9,7 +9,7 @@ on:
       - master
       # - feature/*
     tags:
-        - 'v[0-9]+\.[0-9]+\.[0-9]+' # regex pour github actions
+      - 'v[0-9]+\.[0-9]+\.[0-9]+' # regex pour github actions
   workflow_dispatch:
 
 jobs:
