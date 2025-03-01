@@ -54,8 +54,12 @@ jobs:
         uses: gittools/actions/gitversion/execute@v3.1.11
 
       - name: Create tag 
+        env:
+          GITVERSION_FULLSEMVER: ${{ steps.gitversion.outputs.GitVersion_FullSemVer }}
         run: |
-                git tag -a v${{ steps.<id>.outputs.GitVersion_<OutputName> }}
+          TAG_NAME="v${GITVERSION_FULLSEMVER}"
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
 
   # Job for publishing to NuGet
   publish:
