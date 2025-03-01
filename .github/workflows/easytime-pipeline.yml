@@ -1,0 +1,91 @@
+﻿name: EasyTime CI/CD Pipeline
+
+on:
+  pull_request:
+    branches:
+      - dev
+  push:
+    branches:
+      - master
+      # - feature/*
+    tags:
+        - 'v[0-9]+\.[0-9]+\.[0-9]+' # regex pour github actions
+  workflow_dispatch:
+
+jobs:
+  # Job for testing the project
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Run tests
+      run:  dotnet test --verbosity normal
+
+  # Job for creating tag
+  tag-creation:
+    runs-on: ubuntu-latest
+    needs: test                    # Only run if test job is successful
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}    
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v2
+        with:
+            dotnet-version: '8.0.x'
+
+      - name: Install GitVersion # important to have gitversion installed
+        uses: gittools/actions/gitversion/setup@v3.1.11
+        with:
+            versionSpec: '6.0.x'
+
+      - name: Determine Version
+        id: version_step # step id used as reference for output values
+        uses: gittools/actions/gitversion/execute@v3.1.11
+
+      - name: Create tag 
+        run: |
+                git tag -a v${{ env.semVer }}
+
+  # Job for publishing to NuGet
+  publish:
+    runs-on: ubuntu-latest
+    needs: test                    # Only run if test job is successful
+    if: startsWith(github.event.ref, 'refs/tags/v') # Only runs if tag was pushed
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Set env
+      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/v}" >> $GITHUB_ENV
+    
+    - name: Test
+      run: |
+        echo $RELEASE_VERSION
+        echo ${{ env.RELEASE_VERSION }}
+
+    - name: Pack NuGet package
+      run: dotnet pack -c Release -o ./output /p:PackageVersion=${{ env.RELEASE_VERSION }}
+
+    - name: Publish to NuGet
+      run: dotnet nuget push ./output/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+
+
