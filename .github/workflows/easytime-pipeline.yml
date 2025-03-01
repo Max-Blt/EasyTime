@@ -55,9 +55,22 @@ jobs:
         id: version_step # step id used as reference for output values
         uses: gittools/actions/gitversion/execute@v3.1.11
 
-      - name: Create tag 
+      - name: Test
         run: |
-                git tag -a v${{ env.semVer }}
+            echo ${{ env.commitsSinceVersionSource }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: v${{ env.semVer }}
+          release_name: Release v${{ env.semVer }}
+          body: |
+            ${{ env.commitsSinceVersionSource }}
+          draft: false
+          prerelease: false
 
   # Job for publishing to NuGet
   publish:
