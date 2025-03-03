@@ -31,10 +31,14 @@ jobs:
 
   # Job for creating tag
   tag-creation:
-    permissions: write-all
+    # permissions: write-all
     runs-on: ubuntu-latest
     needs: test                    # Only run if test job is successful
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}    
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}  
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
     
     steps:
       - name: Checkout
@@ -64,7 +68,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          PAT_TOKEN: ${{ secrets.PAT }} # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.PAT }} # This token is provided by Actions, you do not need to create your own token
         with:
           tag_name: v${{ env.majorMinorPatch }}
           release_name: Release v${{ env.majorMinorPatch }}
