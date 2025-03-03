@@ -35,10 +35,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: test                    # Only run if test job is successful
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}  
-    permissions:
-      contents: write
-      pull-requests: write
-      repository-projects: write
+    # permissions:
+      # contents: write
+      # pull-requests: write
+      # repository-projects: write
     
     steps:
       - name: Checkout
